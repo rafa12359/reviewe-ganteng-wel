@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reviewe Danton Quiz</title>
+<style>
+  :root{
+    --blue:#0b3d91;
+    --blue-light:#1565d8;
+    --black:#0a0a0a;
+    --green:#13c46b;
+    --green-dark:#0a8f4d;
+    --white:#f4f7fb;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Segoe UI',Arial,sans-serif;
+    background:linear-gradient(135deg,var(--black) 0%,var(--blue) 55%,var(--green-dark) 100%);
+    min-height:100vh;
+    color:var(--white);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  }
+  .app{
+    width:100%;
+    max-width:720px;
+    background:rgba(10,10,10,0.55);
+    border:2px solid var(--green);
+    border-radius:20px;
+    padding:30px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.5);
+    backdrop-filter:blur(6px);
+  }
+  h1{
+    text-align:center;
+    font-size:2em;
+    letter-spacing:1px;
+    margin-bottom:5px;
+    color:var(--white);
+  }
+  h1 span{color:var(--green);}
+  .subtitle{
+    text-align:center;
+    color:#bcd;
+    margin-bottom:25px;
+    font-size:0.95em;
+  }
+  .screen{display:none;}
+  .screen.active{display:block;}
+
+  button{
+    cursor:pointer;
+    border:none;
+    font-weight:bold;
+    font-size:1em;
+    border-radius:12px;
+    transition:transform .15s ease, filter .15s ease;
+  }
+  button:active{transform:scale(0.96);}
+  .btn-primary{
+    background:var(--green);
+    color:var(--black);
+    padding:14px 20px;
+    width:100%;
+    font-size:1.1em;
+  }
+  .btn-primary:hover{filter:brightness(1.1);}
+  .btn-secondary{
+    background:transparent;
+    border:2px solid var(--blue-light);
+    color:var(--white);
+    padding:12px 18px;
+    width:100%;
+  }
+  .btn-secondary:hover{background:rgba(21,101,216,0.2);}
+  .btn-danger{
+    background:#b81e3a;
+    color:#fff;
+    padding:10px 14px;
+  }
+
+  input, textarea{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:2px solid var(--blue-light);
+    background:rgba(255,255,255,0.07);
+    color:var(--white);
+    font-size:1em;
+    margin-bottom:12px;
+    outline:none;
+  }
+  input::placeholder, textarea::placeholder{color:#9ab;}
+  input:focus, textarea:focus{border-color:var(--green);}
+
+  .menu-buttons{display:flex;flex-direction:column;gap:14px;margin-top:20px;}
+
+  /* Editor */
+  .q-block{
+    background:rgba(255,255,255,0.05);
+    border:1px solid var(--blue-light);
+    border-radius:14px;
+    padding:16px;
+    margin-bottom:16px;
+  }
+  .q-block h3{color:var(--green);margin-bottom:10px;font-size:1em;}
+  .options-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;}
+  .opt-row{display:flex;align-items:center;gap:8px;}
+  .opt-row input[type="text"]{margin-bottom:0;}
+  .opt-row input[type="radio"]{width:20px;height:20px;flex:none;}
+  .opt-color-0{border-left:5px solid #e74c3c;}
+  .opt-color-1{border-left:5px solid #2980ff;}
+  .opt-color-2{border-left:5px solid #f1c40f;}
+  .opt-color-3{border-left:5px solid #2ecc71;}
+
+  .row{display:flex;gap:10px;}
+  .row > *{flex:1;}
+
+  /* Game play */
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:16px;
+    font-size:0.95em;
+    color:#bcd;
+  }
+  .timer-badge{
+    background:var(--green);
+    color:var(--black);
+    padding:6px 14px;
+    border-radius:20px;
+    font-weight:bold;
+  }
+  .progress-bar-bg{
+    width:100%;
+    height:8px;
+    background:rgba(255,255,255,0.15);
+    border-radius:6px;
+    overflow:hidden;
+    margin-bottom:20px;
+  }
+  .progress-bar-fill{
+    height:100%;
+    background:var(--green);
+    transition:width 1s linear;
+  }
+  .question-text{
+    font-size:1.4em;
+    text-align:center;
+    margin-bottom:24px;
+    font-weight:bold;
+    min-height:60px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .answers-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+  }
+  .answer-btn{
+    padding:22px 14px;
+    font-size:1.05em;
+    color:#fff;
+    border-radius:14px;
+    text-align:left;
+    min-height:80px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .answer-btn .shape{
+    font-size:1.3em;
+  }
+  .answer-0{background:#e74c3c;}
+  .answer-1{background:#2980ff;}
+  .answer-2{background:#f1c40f;color:#222;}
+  .answer-3{background:#2ecc71;}
+  .answer-btn:hover{filter:brightness(1.12);}
+  .answer-btn.correct{outline:4px solid #fff; box-shadow:0 0 20px #2ecc71;}
+  .answer-btn.wrong{outline:4px solid #fff; opacity:0.5;}
+  .answer-btn[disabled]{cursor:default;}
+
+  .feedback{
+    text-align:center;
+    font-size:1.3em;
+    font-weight:bold;
+    margin:20px 0;
+  }
+  .feedback.correct{color:var(--green);}
+  .feedback.wrong{color:#ff5b5b;}
+
+  .score-display{
+    text-align:center;
+    font-size:1em;
+    color:#bcd;
+    margin-top:10px;
+  }
+  .score-display b{color:var(--green);font-size:1.3em;}
+
+  ul.leaderboard{list-style:none;margin-top:20px;}
+  ul.leaderboard li{
+    display:flex;
+    justify-content:space-between;
+    background:rgba(255,255,255,0.06);
+    border-left:4px solid var(--green);
+    padding:12px 16px;
+    margin-bottom:8px;
+    border-radius:8px;
+  }
+  ul.leaderboard li.gold{border-left-color:gold;}
+  ul.leaderboard li.silver{border-left-color:silver;}
+  ul.leaderboard li.bronze{border-left-color:#cd7f32;}
+
+  .small-link{
+    display:block;
+    text-align:center;
+    margin-top:14px;
+    color:#9ab;
+    font-size:0.9em;
+    cursor:pointer;
+    text-decoration:underline;
+  }
+
+  .center-emoji{
+    font-size:3em;
+    text-align:center;
+    margin-bottom:10px;
+  }
+
+  @media (max-width:480px){
+    .answers-grid{grid-template-columns:1fr;}
+    .options-grid{grid-template-columns:1fr;}
+    h1{font-size:1.5em;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <h1>Reviewe<span> Danton</span> Quiz</h1>
+  <p class="subtitle">Kuis interaktif seru — buat soal sendiri & main bersama!</p>
+
+  <!-- MAIN MENU -->
+  <div class="screen active" id="screen-menu">
+    <div class="menu-buttons">
+      <button class="btn-primary" onclick="goTo('screen-play-name')">▶ Mulai Main (Pakai Soal Default)</button>
+      <button class="btn-secondary" onclick="goTo('screen-editor'); renderEditor();">✏ Buat / Edit Soal Sendiri</button>
+    </div>
+  </div>
+
+  <!-- EDITOR -->
+  <div class="screen" id="screen-editor">
+    <h2 style="color:var(--green);margin-bottom:14px;">Editor Soal</h2>
+    <div id="editor-container"></div>
+    <button class="btn-secondary" onclick="addQuestion()">+ Tambah Soal</button>
+    <div class="menu-buttons" style="margin-top:18px;">
+      <button class="btn-primary" onclick="saveAndPlay()">💾 Simpan & Mulai Main</button>
+      <button class="btn-secondary" onclick="goTo('screen-menu')">← Kembali</button>
+    </div>
+  </div>
+
+  <!-- NAME INPUT -->
+  <div class="screen" id="screen-play-name">
+    <h2 style="color:var(--green);margin-bottom:14px;text-align:center;">Masukkan Nama Kamu</h2>
+    <input type="text" id="player-name" placeholder="Nama pemain...">
+    <div class="menu-buttons">
+      <button class="btn-primary" onclick="startGame()">🚀 Mulai Kuis</button>
+      <button class="btn-secondary" onclick="goTo('screen-menu')">← Kembali</button>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div class="screen" id="screen-game">
+    <div class="topbar">
+      <span id="q-counter">Soal 1/5</span>
+      <span class="timer-badge" id="timer">⏱ 15</span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill" style="width:100%"></div></div>
+    <div class="question-text" id="question-text">Pertanyaan...</div>
+    <div class="answers-grid" id="answers-grid"></div>
+    <div class="score-display">Skor: <b id="current-score">0</b></div>
+  </div>
+
+  <!-- FEEDBACK -->
+  <div class="screen" id="screen-feedback">
+    <div class="center-emoji" id="feedback-emoji">✅</div>
+    <div class="feedback" id="feedback-text">Benar!</div>
+    <div class="score-display">Total Skor: <b id="feedback-score">0</b></div>
+    <button class="btn-primary" style="margin-top:20px;" onclick="nextQuestion()">Lanjut →</button>
+  </div>
+
+  <!-- RESULT -->
+  <div class="screen" id="screen-result">
+    <div class="center-emoji">🏆</div>
+    <h2 style="text-align:center;color:var(--green);margin-bottom:6px;">Kuis Selesai!</h2>
+    <p style="text-align:center;color:#bcd;margin-bottom:10px;" id="result-summary"></p>
+    <ul class="leaderboard" id="leaderboard"></ul>
+    <div class="menu-buttons" style="margin-top:20px;">
+      <button class="btn-primary" onclick="goTo('screen-play-name')">🔁 Main Lagi</button>
+      <button class="btn-secondary" onclick="goTo('screen-menu')">🏠 Menu Utama</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ---------- Default Questions ----------
+const defaultQuestions = [
+  {
+    text: "Apa ibu kota Indonesia?",
+    options: ["Bandung", "Jakarta", "Surabaya", "Medan"],
+    correct: 1
+  },
+  {
+    text: "Berapa hasil dari 12 x 8?",
+    options: ["86", "96", "108", "92"],
+    correct: 1
+  },
+  {
+    text: "Planet apa yang dikenal sebagai 'Planet Merah'?",
+    options: ["Venus", "Jupiter", "Mars", "Saturnus"],
+    correct: 2
+  },
+  {
+    text: "Siapa penemu bola lampu?",
+    options: ["Albert Einstein", "Thomas Edison", "Isaac Newton", "Nikola Tesla"],
+    correct: 1
+  },
+  {
+    text: "Apa warna bendera Indonesia?",
+    options: ["Merah-Hijau", "Merah-Putih", "Biru-Putih", "Hitam-Putih"],
+    correct: 1
+  }
+];
+
+let questions = JSON.parse(JSON.stringify(defaultQuestions));
+let editorQuestions = JSON.parse(JSON.stringify(defaultQuestions));
+
+let currentIndex = 0;
+let score = 0;
+let playerName = "Pemain";
+let timer = null;
+let timeLeft = 15;
+const TIME_LIMIT = 15;
+let answered = false;
+let leaderboardData = []; // {name, score}
+const LB_KEY = "rdq_leaderboard";
+
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ---------- Editor ----------
+function renderEditor(){
+  const container = document.getElementById('editor-container');
+  container.innerHTML = '';
+  editorQuestions.forEach((q, qi) => {
+    const block = document.createElement('div');
+    block.className = 'q-block';
+    block.innerHTML = `
+      <h3>Soal ${qi+1} ${editorQuestions.length>1 ? `<button class="btn-danger" style="float:right;font-size:0.8em;" onclick="removeQuestion(${qi})">Hapus</button>` : ''}</h3>
+      <textarea rows="2" placeholder="Tulis pertanyaan..." onchange="updateQText(${qi}, this.value)">${escapeHtml(q.text)}</textarea>
+      <div class="options-grid">
+        ${q.options.map((opt, oi) => `
+          <div class="opt-row opt-color-${oi}">
+            <input type="radio" name="correct-${qi}" ${q.correct===oi ? 'checked' : ''} onchange="setCorrect(${qi}, ${oi})">
+            <input type="text" value="${escapeHtml(opt)}" placeholder="Pilihan ${oi+1}" onchange="updateOption(${qi}, ${oi}, this.value)">
+          </div>
+        `).join('')}
+      </div>
+    `;
+    container.appendChild(block);
+  });
+}
+
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function updateQText(qi, val){ editorQuestions[qi].text = val; }
+function updateOption(qi, oi, val){ editorQuestions[qi].options[oi] = val; }
+function setCorrect(qi, oi){ editorQuestions[qi].correct = oi; }
+
+function addQuestion(){
+  editorQuestions.push({text:"", options:["","","",""], correct:0});
+  renderEditor();
+}
+function removeQuestion(qi){
+  editorQuestions.splice(qi,1);
+  renderEditor();
+}
+
+function saveAndPlay(){
+  // validate
+  for(const q of editorQuestions){
+    if(!q.text.trim() || q.options.some(o=>!o.trim())){
+      alert("Pastikan semua pertanyaan dan pilihan jawaban terisi!");
+      return;
+    }
+  }
+  questions = JSON.parse(JSON.stringify(editorQuestions));
+  goTo('screen-play-name');
+}
+
+// ---------- Game Logic ----------
+function startGame(){
+  const nameInput = document.getElementById('player-name').value.trim();
+  playerName = nameInput || "Pemain";
+  currentIndex = 0;
+  score = 0;
+  goTo('screen-game');
+  loadQuestion();
+}
+
+function loadQuestion(){
+  answered = false;
+  const q = questions[currentIndex];
+  document.getElementById('q-counter').textContent = `Soal ${currentIndex+1}/${questions.length}`;
+  document.getElementById('question-text').textContent = q.text;
+  document.getElementById('current-score').textContent = score;
+
+  const grid = document.getElementById('answers-grid');
+  grid.innerHTML = '';
+  const shapes = ['▲','◆','●','■'];
+  q.options.forEach((opt, oi) => {
+    const btn = document.createElement('button');
+    btn.className = `answer-btn answer-${oi}`;
+    btn.innerHTML = `<span class="shape">${shapes[oi]}</span> <span>${escapeHtml(opt)}</span>`;
+    btn.onclick = () => selectAnswer(oi);
+    grid.appendChild(btn);
+  });
+
+  timeLeft = TIME_LIMIT;
+  document.getElementById('timer').textContent = `⏱ ${timeLeft}`;
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-fill').style.transition = 'none';
+  requestAnimationFrame(() => {
+    document.getElementById('progress-fill').style.transition = `width ${TIME_LIMIT}s linear`;
+    document.getElementById('progress-fill').style.width = '0%';
+  });
+
+  clearInterval(timer);
+  timer = setInterval(() => {
+    timeLeft--;
+    document.getElementById('timer').textContent = `⏱ ${timeLeft}`;
+    if(timeLeft <= 0){
+      clearInterval(timer);
+      if(!answered) selectAnswer(-1);
+    }
+  }, 1000);
+}
+
+function selectAnswer(oi){
+  if(answered) return;
+  answered = true;
+  clearInterval(timer);
+  const q = questions[currentIndex];
+  const buttons = document.querySelectorAll('.answer-btn');
+  buttons.forEach((b, i) => {
+    b.disabled = true;
+    if(i === q.correct) b.classList.add('correct');
+    else if(i === oi) b.classList.add('wrong');
+  });
+
+  let isCorrect = (oi === q.correct);
+  let pointsEarned = 0;
+  if(isCorrect){
+    pointsEarned = 100 + Math.round((timeLeft/TIME_LIMIT) * 100);
+    score += pointsEarned;
+  }
+
+  setTimeout(() => {
+    document.getElementById('feedback-emoji').textContent = isCorrect ? '✅' : (oi===-1 ? '⌛' : '❌');
+    document.getElementById('feedback-text').textContent = isCorrect ? `Benar! +${pointsEarned} poin` : (oi===-1 ? 'Waktu Habis!' : 'Kurang Tepat!');
+    document.getElementById('feedback-text').className = 'feedback ' + (isCorrect ? 'correct' : 'wrong');
+    document.getElementById('feedback-score').textContent = score;
+    goTo('screen-feedback');
+  }, 1200);
+}
+
+function nextQuestion(){
+  currentIndex++;
+  if(currentIndex >= questions.length){
+    finishGame();
+  } else {
+    goTo('screen-game');
+    loadQuestion();
+  }
+}
+
+function finishGame(){
+  // update leaderboard (stored in memory only)
+  leaderboardData.push({name: playerName, score: score});
+  leaderboardData.sort((a,b) => b.score - a.score);
+  leaderboardData = leaderboardData.slice(0, 10);
+
+  document.getElementById('result-summary').textContent = `${playerName}, skor akhir kamu: ${score}`;
+  const lb = document.getElementById('leaderboard');
+  lb.innerHTML = '';
+  leaderboardData.forEach((entry, i) => {
+    const li = document.createElement('li');
+    if(i===0) li.classList.add('gold');
+    else if(i===1) li.classList.add('silver');
+    else if(i===2) li.classList.add('bronze');
+    li.innerHTML = `<span>${i+1}. ${escapeHtml(entry.name)}</span><span>${entry.score}</span>`;
+    lb.appendChild(li);
+  });
+  goTo('screen-result');
+}
+</script>
+</body>
+</html>
